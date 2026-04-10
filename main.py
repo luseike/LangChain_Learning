@@ -21,6 +21,7 @@ def main():
     # respone = openai_model.invoke("请介绍一下你自己")
     # print(respone.content)
 
+    # agent_response = agent.invoke("请介绍一下你自己")
     response = openai_model.with_structured_output(Joke).invoke("请讲一个笑话，并给它一个评分，范围从1到10")
     print(response)
 
