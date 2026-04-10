@@ -1,0 +1,91 @@
+Metadata-Version: 2.4
+Name: agiproject
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: langchain>=1.2.15
+Requires-Dist: langchain-anthropic>=1.4.0
+Requires-Dist: langchain-chroma>=1.1.0
+Requires-Dist: langchain-classic>=1.0.3
+Requires-Dist: langchain-community>=0.4.1
+Requires-Dist: langchain-core>=1.2.28
+Requires-Dist: langchain-openai>=1.0.0
+Requires-Dist: python-dotenv>=1.0.1
+
+# agiproject
+
+这个项目现在使用 LangChain 创建一个 agent，并通过 `invoke` 方法与 LLM 交互。
+
+## 先说明关键点
+
+你在 VS Code 中使用 GitHub Copilot 时，编辑器里的登录态和凭据不会直接暴露成一个可供 Python 代码复用的 API key。
+
+也就是说：
+
+- 不能直接去“拿 Copilot 的 key”填到项目里。
+- 你需要为实际调用的模型提供单独的 provider 凭据。
+
+当前代码默认走 GitHub Models，因此你需要配置的是 `GITHUB_TOKEN`（GitHub PAT，不是 Copilot 内部凭据）。
+
+## GitHub token 去哪里获取
+
+到 GitHub 创建 Personal Access Token（建议 fine-grained token）：
+
+- https://github.com/settings/tokens
+
+拿到 token 以后，在项目根目录创建 `.env` 文件，内容参考下面：
+
+```env
+LLM_BACKEND=github_models
+GITHUB_TOKEN=你的_github_pat
+GITHUB_MODELS_BASE_URL=https://models.inference.ai.azure.com
+LLM_MODEL=openai/gpt-4.1
+USER_PROMPT=请介绍一下你自己，并说明你能做什么。
+```
+
+`.env` 已经被加入 `.gitignore`，不会默认提交到仓库。
+
+## 安装依赖
+
+如果你使用 `uv`：
+
+```bash
+uv sync
+```
+
+## 运行
+
+```bash
+uv run python main.py
+```
+
+程序会：
+
+- 从 `.env` 加载 `GITHUB_TOKEN`
+- 初始化 GitHub Models（OpenAI-compatible endpoint）
+- 构建一个 LangChain agent
+- 调用 `agent.invoke(...)`
+
+## main.py 做了什么
+
+`main.py` 现在的逻辑是：
+
+1. 从项目根目录读取 `.env`
+2. 检查 `LLM_BACKEND` 对应凭据是否存在（默认检查 `GITHUB_TOKEN`）
+3. 用 `init_chat_model(...)` 初始化模型（默认走 GitHub Models endpoint）
+4. 用 `create_agent(...)` 创建 agent
+5. 用 `agent.invoke(...)` 发送消息并打印最终回复
+
+如果你后面想改回 OpenAI，设置：
+
+```env
+LLM_BACKEND=openai
+OPENAI_API_KEY=你的_openai_key
+LLM_MODEL=openai/gpt-4.1
+```
+
+如果你后面要切到其他 provider（Azure OpenAI、Anthropic 等），需要改两部分：
+
+- `LLM_MODEL`
+- 对应 provider 的环境变量

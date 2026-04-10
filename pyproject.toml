@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agiproject"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "langchain>=1.2.15",
+    "langchain-anthropic>=1.4.0",
+    "langchain-chroma>=1.1.0",
+    "langchain-classic>=1.0.3",
+    "langchain-community>=0.4.1",
+    "langchain-core>=1.2.28",
+    "langchain-openai>=1.0.0",
+    "python-dotenv>=1.0.1",
+]
+
+[project.scripts]
+structured-output = "langchain_apis.structured_output.with_structured_output:main"
+
+[tool.uv]
+package = true
+
+[tool.setuptools]
+py-modules = ["main", "models"]
+
+[tool.setuptools.packages.find]
+include = ["langchain_apis*"]
